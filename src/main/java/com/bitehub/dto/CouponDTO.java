@@ -2,18 +2,39 @@ package com.bitehub.dto;
 
 import com.bitehub.model.Coupon;
 import com.bitehub.model.DiscountType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
 public class CouponDTO {
     private Long id;
+
+    @NotBlank(message = "Coupon code is required")
+    @Size(max = 255, message = "Coupon code must be 255 characters or fewer")
     private String code;
+
     private DiscountType discountType;
+
+    @NotNull(message = "Discount value is required")
+    @Positive(message = "Discount value must be greater than zero")
     private Double discountValue;
+
+    @PositiveOrZero(message = "Minimum order amount cannot be negative")
     private Double minOrderAmount;
+
+    @PositiveOrZero(message = "Maximum discount amount cannot be negative")
     private Double maxDiscountAmount;
+
     private LocalDate expiryDate;
+
     private boolean isActive;
+
+    @Positive(message = "Usage limit must be greater than zero")
     private Integer usageLimit;
+
     private Integer timesUsed;
 
     public CouponDTO() {}

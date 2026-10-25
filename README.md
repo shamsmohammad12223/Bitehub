@@ -123,14 +123,29 @@ The backend provides balanced progression focusing on strict security choices, t
 
 ---
 
-## 🛠️ Local Environment Deployment
+## Local setup
 
-The engine relies on Java 17 and requires a MySQL database alongside standard environment variables:
-# 1. Set Secure Environment Variables (PowerShell)
-$env:JWT_SECRET="your_long_random_jwt_secret_string"
-$env:ADMIN_SECRET="your_admin_secret_key"
-# 2. Build the Java Application
-mvn clean package -DskipTests
-# 3. Execute the Spring Boot Server
-java -jar target/bitehub-1.0.0.jar
-```bash
+### Prerequisites
+
+- JDK 25 (the version declared in `pom.xml`)
+- Maven 3.9 or newer
+- MySQL 8, running locally
+
+### Configure and run (PowerShell)
+
+Clone the repository, create a local MySQL account with permission to create a
+database, and open PowerShell in the project directory. The default database
+URL creates `bitehub_db` on first startup:
+
+```powershell
+$env:DB_URL = 'jdbc:mysql://localhost:3306/bitehub_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
+$env:DB_USERNAME = 'root'
+$env:DB_PASSWORD = 'your-local-mysql-password'
+$env:JWT_SECRET = 'replace-with-a-long-random-secret'
+$env:ADMIN_SECRET = 'replace-with-a-local-admin-secret'
+
+mvn spring-boot:run
+```
+
+Open <http://localhost:8080>. Keep secrets in your local environment; do not
+commit them. To run the same checks used by CI, run `mvn --batch-mode verify`.
