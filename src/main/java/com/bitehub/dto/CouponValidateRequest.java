@@ -2,6 +2,7 @@ package com.bitehub.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 
 public class CouponValidateRequest {
 
@@ -9,6 +10,7 @@ public class CouponValidateRequest {
     private String code;
 
     @NotNull(message = "Order subtotal is required")
+    @PositiveOrZero(message = "Order subtotal must be zero or greater")
     private Double subtotal;
 
     public CouponValidateRequest() {}
