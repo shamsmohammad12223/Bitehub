@@ -29,7 +29,7 @@
                 <div class="col-lg-7">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                        <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search restaurant name, dish, cuisine, or location..." oninput="applyFilters()">
+                        <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search restaurant, dish, cuisine, or location..." oninput="scheduleFilters()">
                         <button class="btn btn-bh-primary px-4" onclick="applyFilters()">Search</button>
                     </div>
                 </div>
@@ -42,12 +42,6 @@
                     <label class="form-label small fw-semibold text-muted mb-1"><i class="bi bi-egg-fried me-1"></i>Cuisine</label>
                     <select id="cuisineFilter" class="form-select form-select-sm" onchange="applyFilters()">
                         <option value="all">All Cuisines</option>
-                        <option value="American">American / Burgers</option>
-                        <option value="Italian">Italian / Pizza</option>
-                        <option value="Indian">Indian / Biryani</option>
-                        <option value="Japanese">Japanese / Sushi</option>
-                        <option value="Fast Food">Fast Food</option>
-                        <option value="Beverages">Beverages & Shakes</option>
                     </select>
                 </div>
 
@@ -63,36 +57,12 @@
                     </select>
                 </div>
 
-                <!-- 3. Price Level -->
-                <div class="col-6 col-md-4 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted mb-1"><i class="bi bi-cash-stack me-1"></i>Price Level</label>
-                    <select id="priceFilter" class="form-select form-select-sm" onchange="applyFilters()">
-                        <option value="all">Any Price</option>
-                        <option value="$">$ Budget (&lt; Tk 1000)</option>
-                        <option value="$$">$$ Moderate (Tk 1000 - Tk 2500)</option>
-                        <option value="$$$">$$$ Premium (Tk 2500+)</option>
-                    </select>
-                </div>
-
-                <!-- 4. Distance -->
-                <div class="col-6 col-md-4 col-lg-2">
-                    <label class="form-label small fw-semibold text-muted mb-1"><i class="bi bi-geo-alt me-1 text-danger"></i>Max Distance</label>
-                    <select id="distanceFilter" class="form-select form-select-sm" onchange="applyFilters()">
-                        <option value="all">Any Distance</option>
-                        <option value="1.0">Within 1 km (&lt;10m)</option>
-                        <option value="2.5">Within 2.5 km</option>
-                        <option value="5.0">Within 5 km</option>
-                    </select>
-                </div>
-
-                <!-- 5. Sort By -->
-                <div class="col-12 col-md-8 col-lg-4">
+                <!-- 3. Sort By -->
+                <div class="col-12 col-md-8 col-lg-8">
                     <label class="form-label small fw-semibold text-muted mb-1"><i class="bi bi-arrow-down-up me-1"></i>Sort By</label>
                     <div class="d-flex gap-2">
                         <select id="sortBy" class="form-select form-select-sm" onchange="applyFilters()">
-                            <option value="rating">Top Rated ⭐</option>
-                            <option value="deliveryTime">Fastest Delivery ⚡</option>
-                            <option value="price">Lowest Price (Tk)</option>
+                            <option value="rating">Rating</option>
                             <option value="name">Name (A - Z)</option>
                         </select>
                         <button class="btn btn-sm btn-outline-secondary text-nowrap" onclick="resetFilters()">
@@ -107,11 +77,6 @@
                 <span class="small text-muted fw-semibold me-1"><i class="bi bi-lightning-fill text-warning me-1"></i>Quick Tags:</span>
                 <button class="btn btn-sm btn-outline-secondary rounded-pill quick-pill active" onclick="setQuickTag('all', this)">All</button>
                 <button class="btn btn-sm btn-outline-secondary rounded-pill quick-pill" onclick="setQuickTag('top_rated', this)"><i class="bi bi-star-fill text-warning me-1"></i>4.5+ Rated</button>
-                <button class="btn btn-sm btn-outline-secondary rounded-pill quick-pill" onclick="setQuickTag('fast_delivery', this)"><i class="bi bi-lightning-charge-fill text-primary me-1"></i>&lt; 20 Mins</button>
-                <button class="btn btn-sm btn-outline-secondary rounded-pill quick-pill" onclick="setQuickTag('budget', this)"><i class="bi bi-cash me-1"></i>Budget (Tk)</button>
-                <button class="btn btn-sm btn-outline-secondary rounded-pill quick-pill" onclick="setQuickTag('American', this)">🍔 Burgers</button>
-                <button class="btn btn-sm btn-outline-secondary rounded-pill quick-pill" onclick="setQuickTag('Italian', this)">🍕 Pizzas</button>
-                <button class="btn btn-sm btn-outline-secondary rounded-pill quick-pill" onclick="setQuickTag('Indian', this)">🍛 Biryani</button>
             </div>
         </div>
 
@@ -142,6 +107,8 @@
     <script src="/js/api.js"></script>
     <script>
         let allRestaurants = [];
+        let filterTimeout;
+        let filterRequestId = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
             renderNavbar('restaurants');
@@ -152,105 +119,107 @@
             const initialCuisine = params.get('cuisine');
 
             if (initialQuery) document.getElementById('searchInput').value = initialQuery;
-            if (initialCuisine) document.getElementById('cuisineFilter').value = initialCuisine;
 
-            fetchAndLoadRestaurants();
+            fetchAndLoadRestaurants(initialCuisine);
         });
 
-        async function fetchAndLoadRestaurants() {
-            const container = document.getElementById('restaurantsContainer');
+        async function fetchAndLoadRestaurants(initialCuisine) {
+            renderLoading();
             try {
-                const list = await apiRequest('/restaurants');
-                
-                allRestaurants = (list || []).map((r, idx) => {
-                    const distances = [0.8, 1.4, 2.1, 3.2, 4.0, 1.8, 2.7, 0.5];
-                    const priceLevels = ['$', '$$', '$', '$$', '$$$', '$$'];
-                    const times = [15, 20, 25, 30, 22, 18, 35, 12];
-
-                    return {
-                        ...r,
-                        rating: r.rating || (4.2 + ((idx * 7) % 8) / 10),
-                        totalReviews: r.totalReviews || (18 + ((idx * 23) % 150)),
-                        distanceKm: r.distanceKm || distances[idx % distances.length],
-                        priceLevel: r.priceLevel || priceLevels[idx % priceLevels.length],
-                        deliveryTimeMins: r.deliveryTimeMins || times[idx % times.length]
-                    };
-                });
-
+                allRestaurants = await apiRequest('/restaurants') || [];
+                populateCuisineFilter(initialCuisine);
                 applyFilters();
             } catch (error) {
-                container.innerHTML = `<div class="col-12 text-center text-danger py-4">${error.message}</div>`;
+                showRequestError(error);
             }
         }
 
-        function applyFilters() {
-            const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+        function populateCuisineFilter(initialCuisine) {
+            const select = document.getElementById('cuisineFilter');
+            const cuisines = [...new Set(allRestaurants.map(restaurant => restaurant.cuisineType).filter(Boolean))]
+                .sort((a, b) => a.localeCompare(b));
+
+            select.replaceChildren(new Option('All Cuisines', 'all'));
+            cuisines.forEach(cuisine => select.add(new Option(cuisine, cuisine)));
+            if (initialCuisine) {
+                const match = cuisines.find(cuisine => cuisine.toLowerCase() === initialCuisine.toLowerCase());
+                if (match) select.value = match;
+            }
+        }
+
+        function scheduleFilters() {
+            clearTimeout(filterTimeout);
+            filterRequestId++;
+            filterTimeout = setTimeout(applyFilters, 250);
+        }
+
+        async function applyFilters() {
+            const query = (document.getElementById('searchInput').value || '').trim();
             const cuisine = document.getElementById('cuisineFilter').value;
             const minRating = document.getElementById('ratingFilter').value;
-            const price = document.getElementById('priceFilter').value;
-            const maxDistance = document.getElementById('distanceFilter').value;
             const sortBy = document.getElementById('sortBy').value;
+            const requestId = ++filterRequestId;
+            let candidates = allRestaurants;
 
-            let filtered = allRestaurants.filter(r => {
-                // Query match
-                if (query) {
-                    const matchName = (r.name || '').toLowerCase().includes(query);
-                    const matchDesc = (r.description || '').toLowerCase().includes(query);
-                    const matchCuisine = (r.cuisineType || '').toLowerCase().includes(query);
-                    const matchAddr = (r.address || '').toLowerCase().includes(query);
-                    if (!matchName && !matchDesc && !matchCuisine && !matchAddr) return false;
+            if (query) {
+                renderLoading();
+                const params = new URLSearchParams({ query });
+                if (cuisine !== 'all') params.set('cuisine', cuisine);
+                try {
+                    candidates = await apiRequest(`/restaurants?${params.toString()}`) || [];
+                } catch (error) {
+                    if (requestId === filterRequestId) showRequestError(error);
+                    return;
                 }
+            }
+            if (requestId !== filterRequestId) return;
 
-                // Cuisine match
-                if (cuisine !== 'all' && (r.cuisineType || '').toLowerCase() !== cuisine.toLowerCase()) {
-                    return false;
-                }
+            const filtered = candidates.filter(restaurant =>
+                (minRating === 'all' || Number(restaurant.rating || 0) >= Number(minRating)) &&
+                (query || cuisine === 'all' ||
+                    (restaurant.cuisineType || '').toLowerCase() === cuisine.toLowerCase())
+            );
 
-                // Rating match
-                if (minRating !== 'all' && (r.rating || 0) < parseFloat(minRating)) {
-                    return false;
-                }
-
-                // Price match
-                if (price !== 'all' && r.priceLevel !== price) {
-                    return false;
-                }
-
-                // Distance match
-                if (maxDistance !== 'all' && (r.distanceKm || 99) > parseFloat(maxDistance)) {
-                    return false;
-                }
-
-                return true;
-            });
-
-            // Sorting
             filtered.sort((a, b) => {
                 if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
-                if (sortBy === 'deliveryTime') return (a.deliveryTimeMins || 0) - (b.deliveryTimeMins || 0);
-                if (sortBy === 'price') {
-                    const pVal = { '$': 1, '$$': 2, '$$$': 3 };
-                    return (pVal[a.priceLevel] || 2) - (pVal[b.priceLevel] || 2);
-                }
                 if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
                 return 0;
             });
 
-            renderGrid(filtered);
+            renderGrid(filtered, query.length > 0);
         }
 
-        function renderGrid(list) {
+        function renderLoading() {
+            document.getElementById('resultsCount').textContent = 'Loading restaurants...';
+            document.getElementById('restaurantsContainer').innerHTML = `
+                <div class="col-12 text-center py-5">
+                    <div class="spinner-border text-primary" role="status" aria-label="Loading"></div>
+                    <p class="text-muted mt-2">Loading restaurants...</p>
+                </div>
+            `;
+        }
+
+        function showRequestError(error) {
+            document.getElementById('resultsCount').textContent = 'Could not load restaurants';
+            document.getElementById('restaurantsContainer').innerHTML = `
+                <div class="col-12"><div class="alert alert-danger mb-0" role="alert">
+                    Unable to load restaurants. ${Utils.escapeHTML(error.message)}
+                </div></div>
+            `;
+        }
+
+        function renderGrid(list, isSearch) {
             const container = document.getElementById('restaurantsContainer');
             const countEl = document.getElementById('resultsCount');
 
-            countEl.textContent = `Showing ${list.length} of ${allRestaurants.length} restaurants`;
+            countEl.textContent = `${list.length} restaurant${list.length === 1 ? '' : 's'} found`;
 
             if (!list || list.length === 0) {
                 container.innerHTML = `
                     <div class="col-12 text-center py-5">
                         <i class="bi bi-search fs-1 text-muted d-block mb-3"></i>
                         <h4 class="fw-bold text-secondary">No Restaurants Found</h4>
-                        <p class="text-muted small">Try relaxing your search terms or resetting filters.</p>
+                        <p class="text-muted small">${isSearch ? 'Try another restaurant, dish, cuisine, or location.' : 'Try relaxing your filters or resetting them.'}</p>
                         <button class="btn btn-outline-primary rounded-pill btn-sm px-4" onclick="resetFilters()">
                             <i class="bi bi-arrow-counterclockwise me-1"></i>Reset All Filters
                         </button>
@@ -266,7 +235,7 @@
                             <img src="${Utils.escapeHTML(r.imageUrl) || 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600'}" alt="${Utils.escapeHTML(r.name)}">
                             <div class="rating-pill">
                                 <i class="bi bi-star-fill text-warning"></i>
-                                <span>${r.rating ? r.rating.toFixed(1) : '4.5'}</span>
+                                <span>${r.rating != null ? Number(r.rating).toFixed(1) : 'New'}</span>
                                 <small class="text-muted">(${r.totalReviews || 0})</small>
                             </div>
                         </div>
@@ -277,15 +246,14 @@
                             </div>
                             <p class="text-muted small mb-2 text-truncate-2">${Utils.escapeHTML(r.description) || 'Quality meals prepared with passion.'}</p>
                             
-                            <!-- Badges: Cuisine, Price, Distance -->
+                            <!-- Persisted restaurant details -->
                             <div class="d-flex flex-wrap gap-1 align-items-center mb-3">
                                 <span class="badge bg-light text-dark border">${Utils.escapeHTML(r.cuisineType) || 'Cuisine'}</span>
-                                <span class="badge bg-light text-dark border fw-bold text-success">${r.priceLevel || '$$'}</span>
-                                <span class="badge bg-light text-secondary border"><i class="bi bi-geo-alt-fill text-danger me-1"></i>${r.distanceKm ? r.distanceKm.toFixed(1) + ' km' : 'Near Campus'}</span>
+                                <span class="badge bg-light text-secondary border"><i class="bi bi-geo-alt-fill text-danger me-1"></i>${Utils.escapeHTML(r.address) || 'Address unavailable'}</span>
                             </div>
 
                             <div class="mt-auto pt-2 border-top d-flex justify-content-between align-items-center">
-                                <small class="text-muted"><i class="bi bi-clock me-1 text-primary"></i>${r.deliveryTimeMins || 20} mins</small>
+                                <small class="text-muted">${r.totalReviews || 0} review${r.totalReviews === 1 ? '' : 's'}</small>
                                 <a href="/restaurant-detail.html?id=${r.id}" class="btn btn-sm btn-bh-primary px-3 rounded-pill">
                                     View Menu <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
@@ -307,12 +275,6 @@
 
             if (tag === 'top_rated') {
                 document.getElementById('ratingFilter').value = '4.5';
-            } else if (tag === 'fast_delivery') {
-                document.getElementById('sortBy').value = 'deliveryTime';
-            } else if (tag === 'budget') {
-                document.getElementById('priceFilter').value = '$';
-            } else {
-                document.getElementById('cuisineFilter').value = tag;
             }
 
             applyFilters();
@@ -322,8 +284,6 @@
             document.getElementById('searchInput').value = '';
             document.getElementById('cuisineFilter').value = 'all';
             document.getElementById('ratingFilter').value = 'all';
-            document.getElementById('priceFilter').value = 'all';
-            document.getElementById('distanceFilter').value = 'all';
             document.getElementById('sortBy').value = 'rating';
 
             document.querySelectorAll('.quick-pill').forEach(b => b.classList.remove('active'));
