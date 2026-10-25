@@ -127,7 +127,7 @@ The backend provides balanced progression focusing on strict security choices, t
 
 ### Prerequisites
 
-- JDK 25 (the version declared in `pom.xml`)
+- JDK 17 (the version declared in `pom.xml`)
 - Maven 3.9 or newer
 - MySQL 8, running locally
 
