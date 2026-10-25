@@ -28,14 +28,15 @@ public class RestaurantService {
     }
 
     public List<RestaurantDTO> getAllVerifiedRestaurants(String query, String cuisine) {
-        List<Restaurant> list;
-        if (query != null && !query.trim().isEmpty()) {
-            list = restaurantRepository.searchVerifiedRestaurants(query.trim());
-        } else if (cuisine != null && !cuisine.trim().isEmpty() && !cuisine.equalsIgnoreCase("all")) {
-            list = restaurantRepository.findByCuisineTypeIgnoreCaseAndIsVerifiedTrue(cuisine.trim());
-        } else {
-            list = restaurantRepository.findByIsVerifiedTrue();
-        }
+        String normalizedQuery = query == null || query.isBlank() ? null : query.trim();
+        String trimmedCuisine = cuisine == null ? null : cuisine.trim();
+        String normalizedCuisine = trimmedCuisine == null || trimmedCuisine.isEmpty() || trimmedCuisine.equalsIgnoreCase("all")
+                ? null
+                : trimmedCuisine;
+
+        List<Restaurant> list = normalizedQuery == null && normalizedCuisine == null
+                ? restaurantRepository.findByIsVerifiedTrue()
+                : restaurantRepository.searchVerifiedRestaurants(normalizedQuery, normalizedCuisine);
         return list.stream().map(RestaurantDTO::new).collect(Collectors.toList());
     }
 

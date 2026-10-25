@@ -116,19 +116,32 @@
         async function loadRestaurant(id) {
             try {
                 currentRestaurant = await apiRequest(`/restaurants/${id}`);
-                renderRestaurantHeader(currentRestaurant);
-
-                allMenuItems = await apiRequest(`/menu-items/restaurant/${id}`);
-                const categories = await apiRequest(`/menu-items/restaurant/${id}/categories`);
-
-                renderCategories(categories);
-                renderMenuItems(allMenuItems);
-                loadReviews(id);
             } catch (error) {
                 document.getElementById('restaurantHeader').innerHTML = `
-                    <div class="alert alert-danger">Error loading restaurant: ${error.message}</div>
+                    <div class="alert alert-danger" role="alert">Unable to load this restaurant. ${Utils.escapeHTML(error.message)}</div>
+                `;
+                document.getElementById('menuItemsContainer').innerHTML = `
+                    <div class="alert alert-danger" role="alert">The menu is unavailable because the restaurant could not be loaded.</div>
+                `;
+                document.getElementById('reviewsContainer').innerHTML = `
+                    <p class="text-danger small">Reviews are unavailable because the restaurant could not be loaded.</p>
+                `;
+                return;
+            }
+            renderRestaurantHeader(currentRestaurant);
+
+            try {
+                const menuItems = await apiRequest(`/menu-items/restaurant/${id}`);
+                allMenuItems = menuItems || [];
+                const categories = [...new Set(allMenuItems.map(item => item.category).filter(Boolean))];
+                renderCategories(categories);
+                renderMenuItems(allMenuItems);
+            } catch (error) {
+                document.getElementById('menuItemsContainer').innerHTML = `
+                    <div class="alert alert-danger" role="alert">Unable to load this restaurant's menu. ${Utils.escapeHTML(error.message)}</div>
                 `;
             }
+            loadReviews(id);
         }
 
         function renderRestaurantHeader(r) {
@@ -147,9 +160,9 @@
                             </div>
                             <p class="text-muted mb-2">${Utils.escapeHTML(r.description || 'Quality food freshly prepared upon order.')}</p>
                             <div class="d-flex flex-wrap gap-3 small text-secondary">
-                                <span><i class="bi bi-geo-alt text-danger me-1"></i>${Utils.escapeHTML(r.address || 'Campus Central')}</span>
+                                <span><i class="bi bi-geo-alt text-danger me-1"></i>${Utils.escapeHTML(r.address || 'Address unavailable')}</span>
                                 <span><i class="bi bi-telephone text-primary me-1"></i>${Utils.escapeHTML(r.phone || 'N/A')}</span>
-                                <span class="fw-bold text-dark"><i class="bi bi-star-fill text-warning me-1"></i>${r.rating ? r.rating.toFixed(1) : '4.5'} (${r.totalReviews || 0} reviews)</span>
+                                <span class="fw-bold text-dark"><i class="bi bi-star-fill text-warning me-1"></i>${r.rating != null ? Number(r.rating).toFixed(1) : 'New'} (${r.totalReviews || 0} reviews)</span>
                             </div>
                         </div>
                     </div>

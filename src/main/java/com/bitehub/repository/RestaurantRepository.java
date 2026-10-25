@@ -18,11 +18,15 @@ public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
     List<Restaurant> findByIsVerifiedFalse();
 
     @Query("SELECT r FROM Restaurant r WHERE r.isVerified = true AND " +
-           "(LOWER(r.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "(:query IS NULL OR " +
+           "LOWER(r.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(r.description) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
            "LOWER(r.cuisineType) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
-           "LOWER(r.address) LIKE LOWER(CONCAT('%', :query, '%')))")
-    List<Restaurant> searchVerifiedRestaurants(@Param("query") String query);
-
-    @Query("SELECT r FROM Restaurant r WHERE r.isVerified = true AND LOWER(r.cuisineType) = LOWER(:cuisine)")
-    List<Restaurant> findByCuisineTypeIgnoreCaseAndIsVerifiedTrue(@Param("cuisine") String cuisine);
+           "LOWER(r.address) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "EXISTS (SELECT m.id FROM MenuItem m WHERE m.restaurant.id = r.id AND " +
+           "(LOWER(m.name) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(m.description) LIKE LOWER(CONCAT('%', :query, '%')) OR " +
+           "LOWER(m.category) LIKE LOWER(CONCAT('%', :query, '%'))))" +
+           ") AND (:cuisine IS NULL OR LOWER(r.cuisineType) = LOWER(:cuisine))")
+    List<Restaurant> searchVerifiedRestaurants(@Param("query") String query, @Param("cuisine") String cuisine);
 }
