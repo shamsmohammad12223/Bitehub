@@ -127,7 +127,7 @@ The backend provides balanced progression focusing on strict security choices, t
 
 ### Prerequisites
 
-- JDK 25 (the version declared in `pom.xml`)
+- JDK 17 (the version declared in `pom.xml`)
 - Maven 3.9 or newer
 - MySQL 8, running locally
 
@@ -135,41 +135,11 @@ The backend provides balanced progression focusing on strict security choices, t
 
 Clone the repository, create a local MySQL account with permission to create a
 database, and open PowerShell in the project directory. The default database
-URL creates `bitehub_db` on first startup. Set your local database credentials
-and generate fresh random secrets in PowerShell:
+
 
 ```powershell
 $env:DB_URL = 'jdbc:mysql://localhost:3306/bitehub_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
 $env:DB_USERNAME = 'root'
-$env:DB_PASSWORD = '<your-local-MySQL-password>'
 
-$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
-$jwtBytes = New-Object byte[] 48
-$adminBytes = New-Object byte[] 48
-$rng.GetBytes($jwtBytes)
-$rng.GetBytes($adminBytes)
-$env:JWT_SECRET = [Convert]::ToBase64String($jwtBytes)
-$env:ADMIN_SECRET = [Convert]::ToBase64String($adminBytes)
-$rng.Dispose()
 
-.\mvn.cmd spring-boot:run
-```
 
-Replace the database password with your own; if your local MySQL account has no
-password, set `$env:DB_PASSWORD = ''`. The generated JWT and admin secrets are
-kept only in the current PowerShell session. Generate fresh values locally;
-never commit secrets or use sample credentials. Open <http://localhost:8080>.
-To run the same checks used by CI, run `.\mvn.cmd --batch-mode verify`.
-
-### GitHub Pages static preview
-
-The Pages workflow publishes a static preview from the repository's
-`src/main/resources/static` directory when changes reach `main`. To enable it,
-open **Settings → Pages** and select **GitHub Actions** as the build and
-deployment source. The preview URL is
-`https://<owner>.github.io/<repository>/`.
-
-GitHub Pages cannot run the Spring Boot API or MySQL. Sign-in, ordering,
-delivery tracking, reports, and other API-backed features therefore require
-the application to be deployed separately; the static preview displays a
-notice about this limitation.
