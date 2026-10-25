@@ -124,7 +124,8 @@ async function apiRequest(endpoint, method = 'GET', data = null) {
     try {
         const response = await fetch(`${API_BASE_URL}${endpoint}`, config);
 
-        if (response.status === 401) {
+        const isPublicAuthRequest = endpoint === '/auth/login' || endpoint === '/auth/register';
+        if (response.status === 401 && !isPublicAuthRequest) {
             // Token expired or invalid
             if (Auth.isLoggedIn()) {
                 Auth.logout();
@@ -543,4 +544,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Global image error fallback
 document.addEventListener('error', function(e) { if (e.target.tagName.toLowerCase() === 'img') { e.target.src = '/images/bitehub-logo.jpg'; } }, true);
-

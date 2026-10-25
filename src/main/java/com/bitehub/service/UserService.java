@@ -10,11 +10,13 @@ import com.bitehub.model.User;
 import com.bitehub.repository.AddressRepository;
 import com.bitehub.repository.UserRepository;
 import com.bitehub.dto.RegisterRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 @Service
@@ -107,18 +109,23 @@ public class UserService {
 
     @Transactional
     public UserDTO createAdminUser(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Email is already registered: " + request.getEmail());
+        String email = request.getEmail().trim().toLowerCase(Locale.ROOT);
+        if (userRepository.existsByEmailIgnoreCase(email)) {
+            throw new BadRequestException("Email is already registered.");
         }
         User admin = new User(
                 request.getName(),
-                request.getEmail().toLowerCase().trim(),
+                email,
                 passwordEncoder.encode(request.getPassword()),
                 request.getPhone() != null && !request.getPhone().isBlank() ? request.getPhone() : "+1 555-0100",
                 Role.ROLE_ADMIN
         );
         admin.setEnabled(true);
-        return new UserDTO(userRepository.save(admin));
+        try {
+            return new UserDTO(userRepository.saveAndFlush(admin));
+        } catch (DataIntegrityViolationException ex) {
+            throw new BadRequestException("Email is already registered.");
+        }
     }
 
     @Transactional

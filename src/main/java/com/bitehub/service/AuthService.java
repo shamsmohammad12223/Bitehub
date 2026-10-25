@@ -12,6 +12,7 @@ import com.bitehub.model.User;
 import com.bitehub.repository.DeliveryPersonnelRepository;
 import com.bitehub.repository.RestaurantRepository;
 import com.bitehub.repository.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -19,6 +20,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Locale;
 
 @Service
 public class AuthService {
@@ -52,8 +55,9 @@ public class AuthService {
 
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new BadRequestException("Email is already registered: " + request.getEmail());
+        String email = normalizeEmail(request.getEmail());
+        if (userRepository.existsByEmailIgnoreCase(email)) {
+            throw new BadRequestException("Email is already registered.");
         }
 
         if (request.getRole() == Role.ROLE_ADMIN) {
@@ -64,13 +68,18 @@ public class AuthService {
 
         User user = new User();
         user.setName(request.getName());
-        user.setEmail(request.getEmail().toLowerCase().trim());
+        user.setEmail(email);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         user.setPhone(request.getPhone());
         user.setRole(request.getRole());
         user.setEnabled(true);
 
-        User savedUser = userRepository.save(user);
+        User savedUser;
+        try {
+            savedUser = userRepository.saveAndFlush(user);
+        } catch (DataIntegrityViolationException ex) {
+            throw new BadRequestException("Email is already registered.");
+        }
 
         Long restaurantId = null;
         Long deliveryId = null;
@@ -114,13 +123,14 @@ public class AuthService {
     }
 
     public AuthResponse login(LoginRequest request) {
+        String email = normalizeEmail(request.getEmail());
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(request.getEmail().toLowerCase().trim(), request.getPassword())
+                new UsernamePasswordAuthenticationToken(email, request.getPassword())
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        User user = userRepository.findByEmail(request.getEmail().toLowerCase().trim())
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BadRequestException("User not found"));
 
         if (!user.isEnabled()) {
@@ -147,5 +157,9 @@ public class AuthService {
         }
         return userRepository.findByEmail(auth.getName())
                 .orElseThrow(() -> new BadRequestException("Current user not found"));
+    }
+
+    private String normalizeEmail(String email) {
+        return email.trim().toLowerCase(Locale.ROOT);
     }
 }
