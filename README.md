@@ -135,20 +135,31 @@ The backend provides balanced progression focusing on strict security choices, t
 
 Clone the repository, create a local MySQL account with permission to create a
 database, and open PowerShell in the project directory. The default database
-URL creates `bitehub_db` on first startup:
+URL creates `bitehub_db` on first startup. Set your local database credentials
+and generate fresh random secrets in PowerShell:
 
 ```powershell
 $env:DB_URL = 'jdbc:mysql://localhost:3306/bitehub_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
 $env:DB_USERNAME = 'root'
-$env:DB_PASSWORD = 'your-local-mysql-password'
-$env:JWT_SECRET = 'replace-with-a-long-random-secret'
-$env:ADMIN_SECRET = 'replace-with-a-local-admin-secret'
+$env:DB_PASSWORD = '<your-local-MySQL-password>'
 
-mvn spring-boot:run
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$jwtBytes = New-Object byte[] 48
+$adminBytes = New-Object byte[] 48
+$rng.GetBytes($jwtBytes)
+$rng.GetBytes($adminBytes)
+$env:JWT_SECRET = [Convert]::ToBase64String($jwtBytes)
+$env:ADMIN_SECRET = [Convert]::ToBase64String($adminBytes)
+$rng.Dispose()
+
+.\mvn.cmd spring-boot:run
 ```
 
-Open <http://localhost:8080>. Keep secrets in your local environment; do not
-commit them. To run the same checks used by CI, run `mvn --batch-mode verify`.
+Replace the database password with your own; if your local MySQL account has no
+password, set `$env:DB_PASSWORD = ''`. The generated JWT and admin secrets are
+kept only in the current PowerShell session. Generate fresh values locally;
+never commit secrets or use sample credentials. Open <http://localhost:8080>.
+To run the same checks used by CI, run `.\mvn.cmd --batch-mode verify`.
 
 ### GitHub Pages static preview
 
