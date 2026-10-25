@@ -1,5 +1,6 @@
 # Maven build output
 target/
+/pages-site/
 
 # Local tooling and generated files
 work/

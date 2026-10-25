@@ -149,3 +149,16 @@ mvn spring-boot:run
 
 Open <http://localhost:8080>. Keep secrets in your local environment; do not
 commit them. To run the same checks used by CI, run `mvn --batch-mode verify`.
+
+### GitHub Pages static preview
+
+The Pages workflow publishes a static preview from the repository's
+`src/main/resources/static` directory when changes reach `main`. To enable it,
+open **Settings → Pages** and select **GitHub Actions** as the build and
+deployment source. The preview URL is
+`https://<owner>.github.io/<repository>/`.
+
+GitHub Pages cannot run the Spring Boot API or MySQL. Sign-in, ordering,
+delivery tracking, reports, and other API-backed features therefore require
+the application to be deployed separately; the static preview displays a
+notice about this limitation.
