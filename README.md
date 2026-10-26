@@ -161,6 +161,19 @@ kept only in the current PowerShell session. Generate fresh values locally;
 never commit secrets or use sample credentials. Open <http://localhost:8080>.
 To run the same checks used by CI, run `.\mvn.cmd --batch-mode verify`.
 
+### Render full-stack deployment
+
+The repository includes a Render Blueprint and Dockerfile for deploying the
+Spring Boot application with PostgreSQL. In Render, create a **Blueprint
+Instance** from this repository and select the `shams/github-pages` branch.
+The Blueprint provisions a web service and a PostgreSQL database, and
+generates private JWT, administrator, and demo-account secrets.
+
+The free PostgreSQL database is for demos and expires after 30 days; its data
+will be deleted unless the database is upgraded. The free web service can
+sleep when idle. For persistent production hosting, select paid plans before
+deploying.
+
 ### GitHub Pages static preview
 
 The Pages workflow publishes a static preview from the repository's
