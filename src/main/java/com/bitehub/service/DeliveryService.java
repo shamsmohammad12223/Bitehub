@@ -157,4 +157,35 @@ public class DeliveryService {
         }
         return new DeliveryLocationDTO(delivery.getCurrentLatitude(), delivery.getCurrentLongitude(), delivery.getLocationUpdatedAt());
     }
+
+    /**
+     * Issues (or re-issues) the 6-digit handover OTP for an order. Called when a
+     * rider is assigned / becomes ready for pickup; the value is only pushed to the
+     * owning customer through order events and API responses.
+     */
+    @Transactional
+    public OrderResponseDTO issueDeliveryOtp(Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+        if (order.getDeliveryOtp() == null) {
+            order.setDeliveryOtp(String.format("%06d", 100000 + new java.util.Random().nextInt(899999)));
+        }
+        Order savedOrder = orderRepository.save(order);
+        orderEventService.publish(savedOrder, true);
+        return new OrderResponseDTO(savedOrder, false);
+    }
+
+    /** Verifies the customer-supplied handover OTP for an order. */
+    @Transactional
+    public OrderResponseDTO verifyDeliveryOtp(Long orderId, String code) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new ResourceNotFoundException("Order not found with id: " + orderId));
+        if (order.getDeliveryOtp() == null || !order.getDeliveryOtp().equals(code)) {
+            throw new BadRequestException("Invalid delivery code. Please check and try again.");
+        }
+        Order savedOrder = orderRepository.save(order);
+        OrderResponseDTO response = new OrderResponseDTO(savedOrder, false);
+        response.setOtpVerified(true);
+        return response;
+    }
 }

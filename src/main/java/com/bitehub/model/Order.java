@@ -14,6 +14,14 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Optimistic-lock guard: two concurrent status transitions (e.g. double
+     * "mark delivered" clicks, manual assign vs the dispatch sweep) can no
+     * longer silently overwrite each other or double-count side effects.
+     */
+    @Version
+    private Long version;
+
     @Column(nullable = false, unique = true)
     private String orderNumber;
 
@@ -28,6 +36,11 @@ public class Order {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "delivery_personnel_id")
     private DeliveryPersonnel deliveryPersonnel;
+
+    // Handover delivery OTP (6-digit). Issued when a rider is assigned;
+    // only ever serialized to the owning customer (see OrderResponseDTO).
+    @Column(length = 16)
+    private String deliveryOtp;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -93,6 +106,9 @@ public class Order {
 
     public DeliveryPersonnel getDeliveryPersonnel() { return deliveryPersonnel; }
     public void setDeliveryPersonnel(DeliveryPersonnel deliveryPersonnel) { this.deliveryPersonnel = deliveryPersonnel; }
+
+    public String getDeliveryOtp() { return deliveryOtp; }
+    public void setDeliveryOtp(String deliveryOtp) { this.deliveryOtp = deliveryOtp; }
 
     public OrderStatus getOrderStatus() { return orderStatus; }
     public void setOrderStatus(OrderStatus orderStatus) { this.orderStatus = orderStatus; }

@@ -4,6 +4,7 @@ import com.bitehub.model.*;
 import com.bitehub.repository.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,7 +14,14 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Seeds the demo accounts and sample data on first boot.
+ *
+ * <p>Gated to non-prod profiles: a real deployment (`--spring.profiles.active=prod`)
+ * must never resurrect the well-known demo credentials, including the admin account.
+ */
 @Component
+@Profile("!prod")
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;

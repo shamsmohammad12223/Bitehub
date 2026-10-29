@@ -59,12 +59,30 @@ public class OrderEventService {
         return emitter;
     }
 
+    /** Live SSE connection count (all users). Used by the health probe. */
+    public int subscriberCount() {
+        int total = 0;
+        for (var list : subscribers.values()) {
+            total += list.size();
+        }
+        return total;
+    }
+
     public void publish(Order order) {
+        publish(order, false);
+    }
+
+    /**
+     * Fans an order event out to the involved parties. When {@code includeDeliveryOtp}
+     * is set the payload is built for the customer (who owns the handover OTP); every
+     * other recipient still receives the same event but without the OTP value.
+     */
+    public void publish(Order order, boolean includeDeliveryOtp) {
         Set<String> recipients = ConcurrentHashMap.newKeySet();
         if (order.getCustomer() != null) recipients.add(order.getCustomer().getEmail());
         if (order.getRestaurant() != null && order.getRestaurant().getUser() != null) recipients.add(order.getRestaurant().getUser().getEmail());
         if (order.getDeliveryPersonnel() != null && order.getDeliveryPersonnel().getUser() != null) recipients.add(order.getDeliveryPersonnel().getUser().getEmail());
-        OrderResponseDTO payload = new OrderResponseDTO(order);
+        OrderResponseDTO payload = new OrderResponseDTO(order, includeDeliveryOtp);
         recipients.forEach(email -> send(email, payload));
     }
 

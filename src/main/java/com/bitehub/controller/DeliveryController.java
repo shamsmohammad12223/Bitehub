@@ -55,4 +55,18 @@ public class DeliveryController {
     public ResponseEntity<DeliveryLocationDTO> getLocation(@PathVariable Long orderId) {
         return ResponseEntity.ok(deliveryService.getOrderLocation(orderId));
     }
+
+    @PostMapping("/orders/{orderId}/otp/issue")
+    @PreAuthorize("hasAnyRole('RESTAURANT', 'ADMIN', 'DELIVERY')")
+    public ResponseEntity<OrderResponseDTO> issueDeliveryOtp(@PathVariable Long orderId) {
+        return ResponseEntity.ok(deliveryService.issueDeliveryOtp(orderId));
+    }
+
+    @PostMapping("/orders/{orderId}/otp/verify")
+    @PreAuthorize("hasAnyRole('CUSTOMER', 'DELIVERY', 'ADMIN')")
+    public ResponseEntity<OrderResponseDTO> verifyDeliveryOtp(
+            @PathVariable Long orderId,
+            @RequestBody Map<String, String> body) {
+        return ResponseEntity.ok(deliveryService.verifyDeliveryOtp(orderId, body.get("code")));
+    }
 }

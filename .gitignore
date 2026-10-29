@@ -15,6 +15,9 @@ work/
 *.log
 cloudflared.exe
 
+# Canonical runtime uploads dir (see ImageStorageService / UPLOADS_DIR).
+/uploads/
+
 # IDE and OS files
 .idea/
 *.iml

@@ -87,11 +87,14 @@ public class SecurityConfig {
                 ).permitAll()
                 // Auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                // Health probe for watchdog / uptime monitors
+                .requestMatchers("/api/health").permitAll()
                 // Public GET endpoints
                 .requestMatchers(HttpMethod.GET, "/api/restaurants/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/menu-items/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reviews/restaurant/**").permitAll()
-                .requestMatchers("/api/coupons/validate").permitAll()
+                // Coupon validation requires a login: anonymous probing of codes and discounts is enumeration, not browsing.
+                .requestMatchers("/api/coupons/validate").hasAnyAuthority("ROLE_CUSTOMER", "ROLE_ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/deliveries/orders/*/location").authenticated()
                 // Role-based endpoints
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
