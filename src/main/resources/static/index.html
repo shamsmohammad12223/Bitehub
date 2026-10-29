@@ -18,14 +18,6 @@
     <!-- Header Navigation Container -->
     <div id="navbar-container"></div>
 
-    <!-- Language toggle -->
-    <div class="d-flex align-items-center ms-3">
-        <button id="langToggle" class="btn btn-outline-secondary btn-sm px-2 py-1 rounded-pill" aria-label="Toggle language">
-            <span id="langIcon" class="bi bi-globe"></span>
-            <span id="langText" class="ms-1">EN</span>
-        </button>
-    </div>
-
     <main class="container my-4">
         <!-- Hero Section -->
         <section class="hero-banner mb-5">
@@ -35,12 +27,10 @@
                         <i class="bi bi-fire me-1"></i> Special Offer: Use code <strong>BITE50</strong> for 50% OFF!
                     </span>
                     <h1 class="display-4 fw-extrabold text-dark mb-3">
-                        <span id="heroTitleEn">Craving Good Food?</span>
-                        <br>
-                        <span id="heroTitlebn" style="display:none; color: var(--bh-primary);">ভালো খাবার চাড়ে?</span>
+                        Craving Good Food? <br>
                         <span style="color: var(--bh-primary);">Delivered in Minutes.</span>
                     </h1>
-                    <p class="lead text-muted mb-4" id="heroDesc">
+                    <p class="lead text-muted mb-4">
                         Discover top campus eateries, gourmet burgers, wood-fired pizzas, and traditional biryani delivered right to your doorstep.
                     </p>
 
@@ -259,46 +249,6 @@
         document.getElementById('heroSearchInput').addEventListener('keypress', (e) => {
             if (e.key === 'Enter') handleSearch();
         });
-
-        // Language toggle
-        const langToggle = document.getElementById('langToggle');
-        const langText = document.getElementById('langText');
-        const langIcon = document.getElementById('langIcon');
-        const heroTitleEn = document.getElementById('heroTitleEn');
-        const heroTitlebn = document.getElementById('heroTitlebn');
-        const heroDesc = document.getElementById('heroDesc');
-
-        // Initialize language from i18n.js (if loaded) or default
-        let locale = '<%= getLocale() %>'; // placeholder - we'll use localStorage
-        const stored = localStorage.getItem('bh_lang');
-        if (stored === 'bn') { locale = 'bn'; }
-
-        function toggleLanguage() {
-            if (locale === 'bn') {
-                locale = 'en';
-                langIcon.className = 'bi bi-globe';
-                langText.textContent = 'EN';
-                heroTitleEn.style.display = 'inline';
-                heroTitlebn.style.display = 'none';
-                heroDesc.textContent = t('heroDesc');
-                document.documentElement.lang = 'en';
-            } else {
-                locale = 'bn';
-                langIcon.className = 'bi bi-globe';
-                langText.textContent = 'BN';
-                heroTitleEn.style.display = 'none';
-                heroTitlebn.style.display = 'inline';
-                heroDesc.textContent = t('heroDescbn');
-                document.documentElement.lang = 'bn';
-            }
-            setLocale(locale);
-        }
-
-        langToggle.addEventListener('click', toggleLanguage);
-
-        // On page load, show the stored language or default to EN
-        const stored = localStorage.getItem('bh_lang');
-        if (stored && stored === 'bn') { toggleLanguage(); }
 
         async function loadFeaturedRestaurants() {
             const container = document.getElementById('featuredRestaurantsRow');
