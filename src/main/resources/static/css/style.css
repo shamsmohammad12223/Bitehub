@@ -546,3 +546,49 @@ body.dark-mode .form-select:focus {
     background: #0f172a;
 }
 
+
+
+/* --- Language Toggle Pill Button --- */
+.lang-toggle-btn {
+    transition: all 0.2s ease;
+    cursor: pointer;
+    height: 38px;
+    padding: 0 12px;
+    border: 1px solid #d1d5db !important;
+    background-color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #4b5563;
+    user-select: none;
+}
+.lang-toggle-btn:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8 !important;
+    color: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.lang-toggle-btn:active {
+    transform: translateY(0);
+}
+.lang-toggle-btn .bi-globe2 {
+    font-size: 0.95rem;
+    color: #64748b;
+    transition: transform 0.3s ease;
+}
+.lang-toggle-btn:hover .bi-globe2 {
+    color: var(--bh-primary, #e23744);
+    transform: rotate(20deg);
+}
+[data-bs-theme="dark"] .lang-toggle-btn, body.dark-mode .lang-toggle-btn {
+    background-color: #1e293b;
+    border-color: #334155 !important;
+    color: #f1f5f9;
+}
+[data-bs-theme="dark"] .lang-toggle-btn:hover, body.dark-mode .lang-toggle-btn:hover {
+    background-color: #334155;
+    border-color: #475569 !important;
+}
+[data-bs-theme="dark"] .lang-toggle-btn .bi-globe2, body.dark-mode .lang-toggle-btn .bi-globe2 {
+    color: #94a3b8;
+}
