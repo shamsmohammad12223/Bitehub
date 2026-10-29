@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: bitehub
+    runtime: docker
+    repo: https://github.com/shamsmohammad12223/Bitehub
+    branch: shams/github-pages
+    region: virginia
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: bitehub-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: bitehub-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: bitehub-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: bitehub-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: bitehub-db
+          property: password
+      - key: JWT_SECRET
+        generateValue: true
+      - key: ADMIN_SECRET
+        generateValue: true
+      - key: BITEHUB_DEMO_SEED_PASSWORD
+        generateValue: true
+
+databases:
+  - name: bitehub-db
+    databaseName: bitehub_db
+    user: bitehub_user
+    region: virginia
+    plan: free

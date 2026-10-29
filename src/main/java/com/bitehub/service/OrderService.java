@@ -143,7 +143,7 @@ public class OrderService {
         payment.setPaymentDate(LocalDateTime.now());
         paymentRepository.save(payment);
 
-        return responseAndPublish(savedOrder);
+        return responseAndPublish(savedOrder, true);
     }
 
     @Transactional
@@ -273,7 +273,9 @@ public class OrderService {
         }
 
         if (target == OrderStatus.CANCELLED) {
-            return cancelOrderInternal(order, request.getReason());
+            boolean includeCustomerOtp = user.getRole() == Role.ROLE_CUSTOMER && order.getCustomer() != null
+                    && order.getCustomer().getId().equals(user.getId());
+            return cancelOrderInternal(order, request.getReason(), includeCustomerOtp);
         }
 
         if (user.getRole() != Role.ROLE_ADMIN && !isValidStatusTransition(current, target)) {
@@ -299,7 +301,7 @@ public class OrderService {
             });
         }
 
-        return responseAndPublish(orderRepository.save(order));
+        return responseAndPublish(orderRepository.save(order), user.getRole() == Role.ROLE_CUSTOMER && isCustomerRequester(order, user));
     }
 
     /** Restricts status changes to the forward-only flow defined by the order event matrix. */
@@ -347,10 +349,12 @@ public class OrderService {
             }
         }
 
-        return cancelOrderInternal(order, request.getReason());
+        boolean includeCustomerOtp = user.getRole() == Role.ROLE_CUSTOMER && order.getCustomer() != null
+                && order.getCustomer().getId().equals(user.getId());
+        return cancelOrderInternal(order, request.getReason(), includeCustomerOtp);
     }
 
-    private OrderResponseDTO cancelOrderInternal(Order order, String reason) {
+    private OrderResponseDTO cancelOrderInternal(Order order, String reason, boolean includeCustomerOtp) {
         order.setOrderStatus(OrderStatus.CANCELLED);
         order.setCancellationReason(reason != null ? reason : "Cancelled by user");
         order.setUpdatedAt(LocalDateTime.now());
@@ -367,7 +371,7 @@ public class OrderService {
             }
         });
 
-        return responseAndPublish(orderRepository.save(order));
+        return responseAndPublish(orderRepository.save(order), includeCustomerOtp);
     }
 
     @Transactional
@@ -390,7 +394,7 @@ public class OrderService {
         paymentRepository.save(payment);
         order.setPaymentStatus(PaymentStatus.REFUNDED);
         order.setUpdatedAt(LocalDateTime.now());
-        return responseAndPublish(orderRepository.save(order));
+        return responseAndPublish(orderRepository.save(order), false);
     }
 
     @Transactional
@@ -422,6 +426,8 @@ public class OrderService {
 
         order.setDeliveryPersonnel(deliveryPersonnel);
         order.setOrderStatus(OrderStatus.READY_FOR_PICKUP);
+        // Handover delivery OTP — generated for the customer when a rider is assigned.
+        order.setDeliveryOtp(String.format("%06d", 100000 + new java.util.Random().nextInt(899999)));
         order.setUpdatedAt(LocalDateTime.now());
 
         Delivery delivery = deliveryRepository.findByOrderId(order.getId()).orElse(new Delivery());
@@ -434,12 +440,22 @@ public class OrderService {
         deliveryPersonnel.setActiveOrdersCount(deliveryPersonnel.getActiveOrdersCount() + 1);
         deliveryPersonnelRepository.save(deliveryPersonnel);
 
-        return responseAndPublish(orderRepository.save(order));
+        Order savedOrder = orderRepository.save(order);
+        // A rider is being assigned: the handover OTP now exists and belongs to
+        // the customer — SSE payloads for the customer include it, others get the flag.
+        orderEventService.publish(savedOrder, true);
+        return new OrderResponseDTO(savedOrder, false);
     }
 
-    private OrderResponseDTO responseAndPublish(Order order) {
-        OrderResponseDTO response = new OrderResponseDTO(order);
-        orderEventService.publish(order);
+    /** True when the current user is the customer that owns this order. */
+    private boolean isCustomerRequester(Order order, User user) {
+        return user.getRole() == Role.ROLE_CUSTOMER && order.getCustomer() != null
+                && order.getCustomer().getId().equals(user.getId());
+    }
+
+    private OrderResponseDTO responseAndPublish(Order order, boolean includeCustomerOtp) {
+        OrderResponseDTO response = new OrderResponseDTO(order, includeCustomerOtp);
+        orderEventService.publish(order, includeCustomerOtp);
         return response;
     }
 }

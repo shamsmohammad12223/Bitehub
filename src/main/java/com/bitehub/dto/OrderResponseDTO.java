@@ -31,6 +31,13 @@ public class OrderResponseDTO {
     private String deliveryPersonnelPhone;
     private String vehicleType;
 
+    // Delivery handover OTP: only the owning customer ever receives the value;
+    // everyone else (rider, restaurant, admin) gets deliveryCodeIssued instead.
+    private String deliveryOtp;
+    private boolean deliveryCodeIssued;
+    private boolean includeDeliveryOtp;
+    private boolean otpVerified;
+
     private OrderStatus orderStatus;
     private Double subtotal;
     private Double deliveryFee;
@@ -55,7 +62,14 @@ public class OrderResponseDTO {
 
     public OrderResponseDTO() {}
 
-    public OrderResponseDTO(Order order) {
+    public OrderResponseDTO(Order order) { this(order, false); }
+
+    /**
+     * @param includeDeliveryOtp true only when the requesting party is the
+     *                           customer that owns the order — that party is
+     *                           allowed to see the handover OTP.
+     */
+    public OrderResponseDTO(Order order, boolean includeDeliveryOtp) {
         this.id = order.getId();
         this.orderNumber = order.getOrderNumber();
 
@@ -103,6 +117,11 @@ public class OrderResponseDTO {
 
         this.placedAt = order.getPlacedAt();
         this.updatedAt = order.getUpdatedAt();
+
+        this.deliveryCodeIssued = order.getDeliveryOtp() != null;
+        this.includeDeliveryOtp = includeDeliveryOtp;
+        this.deliveryOtp = includeDeliveryOtp ? order.getDeliveryOtp() : null;
+        this.otpVerified = false;
 
         if (order.getItems() != null) {
             this.items = order.getItems().stream().map(OrderItemDTO::new).collect(Collectors.toList());
@@ -156,6 +175,18 @@ public class OrderResponseDTO {
 
     public String getVehicleType() { return vehicleType; }
     public void setVehicleType(String vehicleType) { this.vehicleType = vehicleType; }
+
+    public String getDeliveryOtp() { return deliveryOtp; }
+    public void setDeliveryOtp(String deliveryOtp) { this.deliveryOtp = deliveryOtp; }
+
+    public boolean isDeliveryCodeIssued() { return deliveryCodeIssued; }
+    public void setDeliveryCodeIssued(boolean deliveryCodeIssued) { this.deliveryCodeIssued = deliveryCodeIssued; }
+
+    public boolean isIncludeDeliveryOtp() { return includeDeliveryOtp; }
+    public void setIncludeDeliveryOtp(boolean includeDeliveryOtp) { this.includeDeliveryOtp = includeDeliveryOtp; }
+
+    public boolean isOtpVerified() { return otpVerified; }
+    public void setOtpVerified(boolean otpVerified) { this.otpVerified = otpVerified; }
 
     public OrderStatus getOrderStatus() { return orderStatus; }
     public void setOrderStatus(OrderStatus orderStatus) { this.orderStatus = orderStatus; }

@@ -101,6 +101,181 @@ try {
     document.documentElement.setAttribute('data-bs-theme', _initialTheme);
 } catch (e) {}
 
+// --- Language & Internationalization (I18n) Manager ---
+const I18n = {
+    KEY: 'bh_lang',
+    translations: {
+        en: {
+            nav_home: 'Home',
+            nav_restaurants: 'Restaurants',
+            nav_orders: 'My Orders',
+            nav_dashboard: 'Dashboard',
+            nav_portal_rest: 'Restaurant Portal',
+            nav_portal_rider: 'Delivery Portal',
+            nav_portal_admin: 'Admin Control',
+            nav_analytics: 'Analytics',
+            nav_reports: 'Reports',
+            nav_browse: 'Browse Site',
+            nav_login: 'Log In',
+            nav_signup: 'Sign Up',
+            nav_logout: 'Log Out',
+            nav_profile: 'My Profile',
+            nav_manage_store: 'Manage Store',
+            nav_routes: 'My Routes',
+            nav_admin_panel: 'Admin Panel',
+            hero_badge: '<i class="bi bi-fire me-1"></i> Special Offer: Use code <strong>BITE50</strong> for 50% OFF!',
+            hero_title: 'Craving Good Food? <br><span style="color: var(--bh-primary);">Delivered in Minutes.</span>',
+            hero_desc: 'Discover top campus eateries, gourmet burgers, wood-fired pizzas, and traditional biryani delivered right to your doorstep.',
+            hero_search_ph: 'Search burgers, pizzas, restaurants...',
+            hero_search_btn: 'Search',
+            cat_heading: '<i class="bi bi-grid-fill text-primary me-2"></i>Explore Categories',
+            cat_view_all: 'View All <i class="bi bi-arrow-right"></i>',
+            cat_burgers: 'Burgers',
+            cat_burgers_sub: 'American, Fries',
+            cat_pizzas: 'Pizzas',
+            cat_pizzas_sub: 'Italian, Pasta',
+            cat_biryani: 'Biryani & Curry',
+            cat_biryani_sub: 'Indian, Spices',
+            cat_japanese: 'Japanese',
+            cat_japanese_sub: 'Sushi & Ramen',
+            cat_fastfood: 'Fast Food',
+            cat_fastfood_sub: 'Crispy Wings',
+            cat_beverages: 'Beverages',
+            cat_beverages_sub: 'Shakes & Tea',
+            featured_heading: '<i class="bi bi-star-fill text-warning me-2"></i>Top Rated Restaurants',
+            featured_sub: 'Popular verified kitchens around campus',
+            featured_see_all: 'See All Restaurants',
+            how_title: 'How BiteHub Works',
+            how_step1_title: '1. Select Food',
+            how_step1_desc: 'Browse verified local restaurants and mouth-watering menus.',
+            how_step2_title: '2. Place Order',
+            how_step2_desc: 'Customize with coupons and choose simulated cards, mobile banking, or COD.',
+            how_step3_title: '3. Real-time Tracking',
+            how_step3_desc: 'Watch status change live from kitchen preparation to rider pickup.',
+            how_step4_title: '4. Enjoy & Review',
+            how_step4_desc: 'Receive fresh, hot food and share your feedback with the community.',
+            promo_title: 'Own a Restaurant or Want to Deliver?',
+            promo_desc: 'Partner with BiteHub to grow your sales or register as a delivery rider with flexible hours.',
+            promo_btn_rest: 'Register Restaurant',
+            promo_btn_rider: 'Join as Rider'
+        },
+        bn: {
+            nav_home: 'হোম',
+            nav_restaurants: 'রেস্তোরাঁ',
+            nav_orders: 'আমার অর্ডার',
+            nav_dashboard: 'ড্যাশবোর্ড',
+            nav_portal_rest: 'রেস্তোরাঁ পোর্টাল',
+            nav_portal_rider: 'ডেলিভারি পোর্টাল',
+            nav_portal_admin: 'অ্যাডমিন কন্ট্রোল',
+            nav_analytics: 'অ্যানালিটিক্স',
+            nav_reports: 'রিপোর্ট',
+            nav_browse: 'সাইট ব্রাউজ',
+            nav_login: 'লগইন',
+            nav_signup: 'সাইন আপ',
+            nav_logout: 'লগআউট',
+            nav_profile: 'আমার প্রোফাইল',
+            nav_manage_store: 'স্টোর পরিচালনা',
+            nav_routes: 'আমার রুট',
+            nav_admin_panel: 'অ্যাডমিন প্যানেল',
+            hero_badge: '<i class="bi bi-fire me-1"></i> বিশেষ অফার: <strong>BITE50</strong> কোড ব্যবহারে ৫০% ছাড়!',
+            hero_title: 'সুস্বাদু খাবার খুঁজছেন? <br><span style="color: var(--bh-primary);">পৌঁছে যাবে নিমেষেই।</span>',
+            hero_desc: 'আপনার ক্যাম্পাসের সেরা রেস্তোরাঁ, সুস্বাদু বার্গার, পিজ্জা এবং ঐতিহ্যবাহী কাচ্চি-বিরিয়ানি সরাসরি আপনার দরজায়।',
+            hero_search_ph: 'বার্গার, পিজ্জা, রেস্তোরাঁ খুঁজুন...',
+            hero_search_btn: 'অনুসন্ধান',
+            cat_heading: '<i class="bi bi-grid-fill text-primary me-2"></i>ক্যাটাগরি সমূহ',
+            cat_view_all: 'সবগুলো দেখুন <i class="bi bi-arrow-right"></i>',
+            cat_burgers: 'বার্গার',
+            cat_burgers_sub: 'আমেরিকান, ফ্রাইস',
+            cat_pizzas: 'পিজ্জা',
+            cat_pizzas_sub: 'ইতালীয়, পাস্তা',
+            cat_biryani: 'বিরিয়ানি ও কারি',
+            cat_biryani_sub: 'মসলাদার খাবার',
+            cat_japanese: 'জাপানিজ',
+            cat_japanese_sub: 'সুশি ও রামেন',
+            cat_fastfood: 'ফাস্ট ফুড',
+            cat_fastfood_sub: 'খাস্তা উইংস',
+            cat_beverages: 'পানীয়',
+            cat_beverages_sub: 'শেক ও চা',
+            featured_heading: '<i class="bi bi-star-fill text-warning me-2"></i>সেরা রেস্তোরাঁসমূহ',
+            featured_sub: 'ক্যাম্পাসের জনপ্রিয় ও বিশ্বস্ত কিচেনসমূহ',
+            featured_see_all: 'সব রেস্তোরাঁ দেখুন',
+            how_title: 'বাইটহাব কীভাবে কাজ করে',
+            how_step1_title: '১. খাবার বাছুন',
+            how_step1_desc: 'ক্যাম্পাসের সেরা রেস্তোরাঁর লোভনীয় মেনু থেকে পছন্দ করুন।',
+            how_step2_title: '২. অর্ডার দিন',
+            how_step2_desc: 'কুপন ছাড় ব্যবহার করে ক্যাশ অন ডেলিভারি বা মোবাইলে পেমেন্ট করুন।',
+            how_step3_title: '৩. লাইভ ট্র্যাকিং',
+            how_step3_desc: 'রান্না থেকে শুরু করে রাইডারের ডেলিভারি স্ট্যাটাস সরাসরি ট্র্যাক করুন।',
+            how_step4_title: '৪. উপভোগ ও রিভিউ',
+            how_step4_desc: 'গরম খাবার গ্রহণ করুন এবং আপনার অভিজ্ঞতা রিভিউ আকারে শেয়ার করুন।',
+            promo_title: 'রেস্তোরাঁর মালিক কিংবা রাইডার হতে চান?',
+            promo_desc: 'বাইটহাবে আপনার রেস্তোরাঁ যুক্ত করে ব্যবসা বৃদ্ধি করুন অথবা রাইডার হয়ে আয় করুন।',
+            promo_btn_rest: 'রেস্তোরাঁ যুক্ত করুন',
+            promo_btn_rider: 'রাইডার হিসেবে যোগ দিন'
+        }
+    },
+    get() {
+        return localStorage.getItem(this.KEY) || 'en';
+    },
+    set(lang) {
+        localStorage.setItem(this.KEY, lang);
+        document.documentElement.setAttribute('lang', lang);
+        this.updateButton();
+        this.apply();
+        if (typeof renderNavbar === 'function') {
+            const activePage = window.__bhActivePage || 'home';
+            renderNavbar(activePage);
+        }
+    },
+    toggle() {
+        const next = this.get() === 'en' ? 'bn' : 'en';
+        this.set(next);
+    },
+    t(key) {
+        const lang = this.get();
+        return (this.translations[lang] && this.translations[lang][key]) || 
+               (this.translations.en && this.translations.en[key]) || key;
+    },
+    updateButton() {
+        const lang = this.get();
+        const textSpan = document.getElementById('currentLangText');
+        if (textSpan) {
+            textSpan.textContent = lang === 'en' ? 'EN' : 'বাং';
+        }
+        const btn = document.getElementById('langToggleBtn');
+        if (btn) {
+            btn.setAttribute('title', lang === 'en' ? 'বাংলা ভাষায় দেখুন' : 'Switch to English');
+        }
+    },
+    apply() {
+        const lang = this.get();
+        const dict = this.translations[lang] || this.translations.en;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (dict[key] !== undefined) {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = dict[key];
+                } else {
+                    el.innerHTML = dict[key];
+                }
+            }
+        });
+    },
+    init() {
+        const lang = this.get();
+        document.documentElement.setAttribute('lang', lang);
+        this.updateButton();
+        this.apply();
+    }
+};
+
+// Initialize language immediately on script load
+try {
+    const _initialLang = localStorage.getItem('bh_lang') || 'en';
+    document.documentElement.setAttribute('lang', _initialLang);
+} catch (e) {}
+
+
 // --- HTTP Request Client ---
 async function apiRequest(endpoint, method = 'GET', data = null) {
     const headers = {
@@ -426,6 +601,7 @@ const Utils = {
 
 // --- Dynamic Navbar Generator ---
 function renderNavbar(activePage = '') {
+    window.__bhActivePage = activePage;
     const navPlaceholder = document.getElementById('navbar-container');
     if (!navPlaceholder) return;
 
@@ -436,24 +612,24 @@ function renderNavbar(activePage = '') {
     if (user) {
         if (user.role === 'ROLE_CUSTOMER') {
             roleNavLinks = `
-                <li class="nav-item"><a class="nav-link ${activePage === 'restaurants' ? 'active' : ''}" href="/restaurants.html"><i class="bi bi-shop me-1"></i>Restaurants</a></li>
-                <li class="nav-item"><a class="nav-link ${activePage === 'orders' ? 'active' : ''}" href="/order-history.html"><i class="bi bi-receipt me-1"></i>My Orders</a></li>
-                <li class="nav-item"><a class="nav-link ${activePage === 'dashboard' ? 'active' : ''}" href="/customer-dashboard.html"><i class="bi bi-person me-1"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link ${activePage === 'restaurants' ? 'active' : ''}" href="/restaurants.html"><i class="bi bi-shop me-1"></i>${I18n.t('nav_restaurants')}</a></li>
+                <li class="nav-item"><a class="nav-link ${activePage === 'orders' ? 'active' : ''}" href="/order-history.html"><i class="bi bi-receipt me-1"></i>${I18n.t('nav_orders')}</a></li>
+                <li class="nav-item"><a class="nav-link ${activePage === 'dashboard' ? 'active' : ''}" href="/customer-dashboard.html"><i class="bi bi-person me-1"></i>${I18n.t('nav_dashboard')}</a></li>
             `;
         } else if (user.role === 'ROLE_RESTAURANT') {
             roleNavLinks = `
-                <li class="nav-item"><a class="nav-link ${activePage === 'restaurant-dash' ? 'active' : ''}" href="/restaurant-dashboard.html"><i class="bi bi-speedometer2 me-1"></i>Restaurant Portal</a></li>
-                <li class="nav-item"><a class="nav-link ${activePage === 'reports' ? 'active' : ''}" href="/reports.html"><i class="bi bi-bar-chart-line me-1"></i>Analytics</a></li>
+                <li class="nav-item"><a class="nav-link ${activePage === 'restaurant-dash' ? 'active' : ''}" href="/restaurant-dashboard.html"><i class="bi bi-speedometer2 me-1"></i>${I18n.t('nav_portal_rest')}</a></li>
+                <li class="nav-item"><a class="nav-link ${activePage === 'reports' ? 'active' : ''}" href="/reports.html"><i class="bi bi-bar-chart-line me-1"></i>${I18n.t('nav_analytics')}</a></li>
             `;
         } else if (user.role === 'ROLE_DELIVERY') {
             roleNavLinks = `
-                <li class="nav-item"><a class="nav-link ${activePage === 'delivery-dash' ? 'active' : ''}" href="/delivery-dashboard.html"><i class="bi bi-bicycle me-1"></i>Delivery Portal</a></li>
+                <li class="nav-item"><a class="nav-link ${activePage === 'delivery-dash' ? 'active' : ''}" href="/delivery-dashboard.html"><i class="bi bi-bicycle me-1"></i>${I18n.t('nav_portal_rider')}</a></li>
             `;
         } else if (user.role === 'ROLE_ADMIN') {
             roleNavLinks = `
-                <li class="nav-item"><a class="nav-link ${activePage === 'admin-dash' ? 'active' : ''}" href="/admin-dashboard.html"><i class="bi bi-shield-check me-1"></i>Admin Control</a></li>
-                <li class="nav-item"><a class="nav-link ${activePage === 'reports' ? 'active' : ''}" href="/reports.html"><i class="bi bi-bar-chart-line me-1"></i>Reports</a></li>
-                <li class="nav-item"><a class="nav-link" href="/restaurants.html"><i class="bi bi-shop me-1"></i>Browse Site</a></li>
+                <li class="nav-item"><a class="nav-link ${activePage === 'admin-dash' ? 'active' : ''}" href="/admin-dashboard.html"><i class="bi bi-shield-check me-1"></i>${I18n.t('nav_portal_admin')}</a></li>
+                <li class="nav-item"><a class="nav-link ${activePage === 'reports' ? 'active' : ''}" href="/reports.html"><i class="bi bi-bar-chart-line me-1"></i>${I18n.t('nav_reports')}</a></li>
+                <li class="nav-item"><a class="nav-link" href="/restaurants.html"><i class="bi bi-shop me-1"></i>${I18n.t('nav_browse')}</a></li>
             `;
         }
 
@@ -473,27 +649,29 @@ function renderNavbar(activePage = '') {
                         <span class="badge bg-primary mt-1">${Utils.escapeHTML(user.role.replace('ROLE_', ''))}</span>
                     </li>
                     <li><hr class="dropdown-divider"></li>
-                    ${user.role === 'ROLE_CUSTOMER' ? '<li><a class="dropdown-item" href="/customer-dashboard.html"><i class="bi bi-gear me-2"></i>My Profile</a></li>' : ''}
-                    ${user.role === 'ROLE_RESTAURANT' ? '<li><a class="dropdown-item" href="/restaurant-dashboard.html"><i class="bi bi-shop me-2"></i>Manage Store</a></li>' : ''}
-                    ${user.role === 'ROLE_DELIVERY' ? '<li><a class="dropdown-item" href="/delivery-dashboard.html"><i class="bi bi-geo-alt me-2"></i>My Routes</a></li>' : ''}
-                    ${user.role === 'ROLE_ADMIN' ? '<li><a class="dropdown-item" href="/admin-dashboard.html"><i class="bi bi-speedometer2 me-2"></i>Admin Panel</a></li>' : ''}
+                    ${user.role === 'ROLE_CUSTOMER' ? `<li><a class="dropdown-item" href="/customer-dashboard.html"><i class="bi bi-gear me-2"></i>${I18n.t('nav_profile')}</a></li>` : ''}
+                    ${user.role === 'ROLE_RESTAURANT' ? `<li><a class="dropdown-item" href="/restaurant-dashboard.html"><i class="bi bi-shop me-2"></i>${I18n.t('nav_manage_store')}</a></li>` : ''}
+                    ${user.role === 'ROLE_DELIVERY' ? `<li><a class="dropdown-item" href="/delivery-dashboard.html"><i class="bi bi-geo-alt me-2"></i>${I18n.t('nav_routes')}</a></li>` : ''}
+                    ${user.role === 'ROLE_ADMIN' ? `<li><a class="dropdown-item" href="/admin-dashboard.html"><i class="bi bi-speedometer2 me-2"></i>${I18n.t('nav_admin_panel')}</a></li>` : ''}
                     <li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="Auth.logout()"><i class="bi bi-box-arrow-right me-2"></i>Log Out</a></li>
+                    <li><a class="dropdown-item text-danger" href="javascript:void(0)" onclick="Auth.logout()"><i class="bi bi-box-arrow-right me-2"></i>${I18n.t('nav_logout')}</a></li>
                 </ul>
             </div>
         `;
     } else {
         roleNavLinks = `
-            <li class="nav-item"><a class="nav-link ${activePage === 'home' ? 'active' : ''}" href="/index.html">Home</a></li>
-            <li class="nav-item"><a class="nav-link ${activePage === 'restaurants' ? 'active' : ''}" href="/restaurants.html">Restaurants</a></li>
+            <li class="nav-item"><a class="nav-link ${activePage === 'home' ? 'active' : ''}" href="/index.html">${I18n.t('nav_home')}</a></li>
+            <li class="nav-item"><a class="nav-link ${activePage === 'restaurants' ? 'active' : ''}" href="/restaurants.html">${I18n.t('nav_restaurants')}</a></li>
         `;
         authNavHtml = `
             <div class="d-flex gap-2 ms-lg-3">
-                <a href="/login.html" class="btn btn-outline-secondary px-3">Log In</a>
-                <a href="/register.html" class="btn btn-bh-primary px-3">Sign Up</a>
+                <a href="/login.html" class="btn btn-outline-secondary px-3">${I18n.t('nav_login')}</a>
+                <a href="/register.html" class="btn btn-bh-primary px-3">${I18n.t('nav_signup')}</a>
             </div>
         `;
     }
+
+    const currentLang = typeof I18n !== 'undefined' ? I18n.get() : 'en';
 
     navPlaceholder.innerHTML = `
         <nav class="navbar navbar-expand-lg navbar-bh sticky-top">
@@ -506,6 +684,11 @@ function renderNavbar(activePage = '') {
                     ${BrowserNotifications.isSupported() && Notification.permission !== 'granted' ? '<button class="btn btn-light rounded-pill px-2 border" onclick="BrowserNotifications.enable()" title="Enable order notifications" aria-label="Enable order notifications"><i class="bi bi-bell fs-5 text-primary"></i></button>' : ''}
                     <button class="btn btn-light rounded-pill px-2 border theme-toggle-btn" onclick="Theme.toggle()" title="Toggle Dark/Light Mode" aria-label="Toggle Theme">
                         <i class="bi bi-moon-stars-fill text-secondary fs-5"></i>
+                    </button>
+                    <!-- Language Toggle Pill Button (Foodpanda Style) -->
+                    <button id="langToggleBtn" class="btn btn-light rounded-pill px-2.5 py-1 border d-inline-flex align-items-center gap-1 lang-toggle-btn" onclick="I18n.toggle()" title="${currentLang === 'en' ? 'বাংলা ভাষায় পরিবর্তন করুন' : 'Switch to English'}" aria-label="Toggle Language">
+                        <i class="bi bi-globe2 text-secondary"></i>
+                        <span id="currentLangText" class="fw-bold text-secondary small">${currentLang === 'en' ? 'EN' : 'বাং'}</span>
                     </button>
                     <a href="/cart.html" class="btn btn-light position-relative rounded-pill px-3 border">
                         <i class="bi bi-cart3 fs-5 text-dark"></i>
@@ -533,6 +716,10 @@ function renderNavbar(activePage = '') {
 
     Cart.updateBadge();
     Theme.updateIcon();
+    if (typeof I18n !== 'undefined') {
+        I18n.updateButton();
+        I18n.apply();
+    }
 }
 
 // Global initialization

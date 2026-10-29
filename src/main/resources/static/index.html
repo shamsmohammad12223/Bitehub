@@ -23,14 +23,14 @@
         <section class="hero-banner mb-5">
             <div class="row align-items-center">
                 <div class="col-lg-7">
-                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3">
+                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3" data-i18n="hero_badge">
                         <i class="bi bi-fire me-1"></i> Special Offer: Use code <strong>BITE50</strong> for 50% OFF!
                     </span>
-                    <h1 class="display-4 fw-extrabold text-dark mb-3">
+                    <h1 class="display-4 fw-extrabold text-dark mb-3" data-i18n="hero_title">
                         Craving Good Food? <br>
                         <span style="color: var(--bh-primary);">Delivered in Minutes.</span>
                     </h1>
-                    <p class="lead text-muted mb-4">
+                    <p class="lead text-muted mb-4" data-i18n="hero_desc">
                         Discover top campus eateries, gourmet burgers, wood-fired pizzas, and traditional biryani delivered right to your doorstep.
                     </p>
 
@@ -40,8 +40,8 @@
                             <span class="input-group-text bg-transparent border-0 ps-3">
                                 <i class="bi bi-search text-muted fs-5"></i>
                             </span>
-                            <input type="text" id="heroSearchInput" class="form-control border-0 shadow-none" placeholder="Search burgers, pizzas, restaurants...">
-                            <button class="btn btn-bh-primary rounded-pill px-4" onclick="handleSearch()">Search</button>
+                            <input type="text" id="heroSearchInput" class="form-control border-0 shadow-none" placeholder="Search burgers, pizzas, restaurants..." data-i18n="hero_search_ph">
+                            <button class="btn btn-bh-primary rounded-pill px-4" onclick="handleSearch()" data-i18n="hero_search_btn">Search</button>
                         </div>
                     </div>
                 </div>
@@ -55,8 +55,8 @@
         <!-- Cuisine Categories -->
         <section class="mb-5">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h3 class="fw-bold m-0"><i class="bi bi-grid-fill text-primary me-2"></i>Explore Categories</h3>
-                <a href="/restaurants.html" class="text-decoration-none fw-semibold">View All <i class="bi bi-arrow-right"></i></a>
+                <h3 class="fw-bold m-0" data-i18n="cat_heading"><i class="bi bi-grid-fill text-primary me-2"></i>Explore Categories</h3>
+                <a href="/restaurants.html" class="text-decoration-none fw-semibold" data-i18n="cat_view_all">View All <i class="bi bi-arrow-right"></i></a>
             </div>
             <div class="row g-3 text-center">
                 <div class="col-6 col-md-4 col-lg-2">
@@ -120,10 +120,10 @@
         <section class="mb-5">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h3 class="fw-bold m-0"><i class="bi bi-star-fill text-warning me-2"></i>Top Rated Restaurants</h3>
-                    <p class="text-muted m-0">Popular verified kitchens around campus</p>
+                    <h3 class="fw-bold m-0" data-i18n="featured_heading"><i class="bi bi-star-fill text-warning me-2"></i>Top Rated Restaurants</h3>
+                    <p class="text-muted m-0" data-i18n="featured_sub">Popular verified kitchens around campus</p>
                 </div>
-                <a href="/restaurants.html" class="btn btn-outline-secondary rounded-pill px-3">See All Restaurants</a>
+                <a href="/restaurants.html" class="btn btn-outline-secondary rounded-pill px-3" data-i18n="featured_see_all">See All Restaurants</a>
             </div>
 
             <div class="row g-4" id="featuredRestaurantsRow">
@@ -137,35 +137,35 @@
 
         <!-- How It Works Section -->
         <section class="my-5 py-4 bh-card rounded-4 p-4">
-            <h3 class="fw-bold text-center mb-4">How BiteHub Works</h3>
+            <h3 class="fw-bold text-center mb-4" data-i18n="how_title">How BiteHub Works</h3>
             <div class="row g-4 text-center">
                 <div class="col-md-3">
                     <div class="stat-icon bg-light text-primary mx-auto mb-3">
                         <i class="bi bi-search fs-3"></i>
                     </div>
-                    <h5 class="fw-bold">1. Select Food</h5>
-                    <p class="text-muted small">Browse verified local restaurants and mouth-watering menus.</p>
+                    <h5 class="fw-bold" data-i18n="how_step1_title">1. Select Food</h5>
+                    <p class="text-muted small" data-i18n="how_step1_desc">Browse verified local restaurants and mouth-watering menus.</p>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-icon bg-light text-warning mx-auto mb-3">
                         <i class="bi bi-bag-check fs-3"></i>
                     </div>
-                    <h5 class="fw-bold">2. Place Order</h5>
-                    <p class="text-muted small">Customize with coupons and choose simulated cards, mobile banking, or COD.</p>
+                    <h5 class="fw-bold" data-i18n="how_step2_title">2. Place Order</h5>
+                    <p class="text-muted small" data-i18n="how_step2_desc">Customize with coupons and choose simulated cards, mobile banking, or COD.</p>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-icon bg-light text-info mx-auto mb-3">
                         <i class="bi bi-geo-alt fs-3"></i>
                     </div>
-                    <h5 class="fw-bold">3. Real-time Tracking</h5>
-                    <p class="text-muted small">Watch status change live from kitchen preparation to rider pickup.</p>
+                    <h5 class="fw-bold" data-i18n="how_step3_title">3. Real-time Tracking</h5>
+                    <p class="text-muted small" data-i18n="how_step3_desc">Watch status change live from kitchen preparation to rider pickup.</p>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-icon bg-light text-success mx-auto mb-3">
                         <i class="bi bi-heart-fill fs-3"></i>
                     </div>
-                    <h5 class="fw-bold">4. Enjoy & Review</h5>
-                    <p class="text-muted small">Receive fresh, hot food and share your feedback with the community.</p>
+                    <h5 class="fw-bold" data-i18n="how_step4_title">4. Enjoy & Review</h5>
+                    <p class="text-muted small" data-i18n="how_step4_desc">Receive fresh, hot food and share your feedback with the community.</p>
                 </div>
             </div>
         </section>
@@ -173,13 +173,13 @@
         <!-- Promotional Banner -->
         <section class="bg-dark text-white rounded-4 p-5 my-5 text-center position-relative overflow-hidden">
             <div class="position-relative z-1">
-                <h2 class="fw-extrabold mb-3">Own a Restaurant or Want to Deliver?</h2>
-                <p class="lead text-light mb-4" style="max-width: 600px; margin: 0 auto;">
+                <h2 class="fw-extrabold mb-3" data-i18n="promo_title">Own a Restaurant or Want to Deliver?</h2>
+                <p class="lead text-light mb-4" style="max-width: 600px; margin: 0 auto;" data-i18n="promo_desc">
                     Partner with BiteHub to grow your sales or register as a delivery rider with flexible hours.
                 </p>
                 <div class="d-flex justify-content-center gap-3">
-                    <a href="/register.html?role=restaurant" class="btn btn-warning fw-bold px-4 py-2 rounded-pill">Register Restaurant</a>
-                    <a href="/register.html?role=delivery" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill">Join as Rider</a>
+                    <a href="/register.html?role=restaurant" class="btn btn-warning fw-bold px-4 py-2 rounded-pill" data-i18n="promo_btn_rest">Register Restaurant</a>
+                    <a href="/register.html?role=delivery" class="btn btn-outline-light fw-bold px-4 py-2 rounded-pill" data-i18n="promo_btn_rider">Join as Rider</a>
                 </div>
             </div>
         </section>
@@ -192,14 +192,14 @@
                 <div class="col-md-4">
                     <h5 class="text-white fw-bold"><i class="bi bi-bag-heart-fill text-warning me-2"></i>bitehub</h5>
                     <p class="small text-secondary">
-                        A university project Food Delivery Management System built with Java Spring Boot, MySQL, Spring Security, Bootstrap 5, and JavaScript.
+                        A university project Food Delivery Management System built with Java Spring Boot, MySQL/PostgreSQL, Spring Security, Bootstrap 5, and JavaScript.
                     </p>
                 </div>
                 <div class="col-md-2 col-6">
                     <h6 class="text-white fw-bold mb-3">Quick Links</h6>
                     <ul class="list-unstyled small">
                         <li class="mb-2"><a href="/restaurants.html">Restaurants</a></li>
-                        <li class="mb-2"><a href="/login.html">Demo Login</a></li>
+                        <li class="mb-2"><a href="/login.html">Sign In</a></li>
                         <li class="mb-2"><a href="/register.html">Sign Up</a></li>
                     </ul>
                 </div>
@@ -213,12 +213,10 @@
                     </ul>
                 </div>
                 <div class="col-md-3">
-                    <h6 class="text-white fw-bold mb-3">Demo Credentials</h6>
+                    <h6 class="text-white fw-bold mb-3">Get Started</h6>
                     <div class="bg-secondary bg-opacity-25 p-3 rounded small">
-                        <div><strong>Admin:</strong> admin@bitehub.com / admin123</div>
-                        <div><strong>Restaurant:</strong> burger@bitehub.com / rest123</div>
-                        <div><strong>Rider:</strong> rider1@bitehub.com / rider123</div>
-                        <div><strong>Customer:</strong> customer@bitehub.com / cust123</div>
+                        <p class="mb-2">Create an account to start exploring BiteHub.</p>
+                        <a href="/register.html" class="link-light fw-semibold">Sign up</a>
                     </div>
                 </div>
             </div>

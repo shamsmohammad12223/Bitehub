@@ -135,11 +135,54 @@ The backend provides balanced progression focusing on strict security choices, t
 
 Clone the repository, create a local MySQL account with permission to create a
 database, and open PowerShell in the project directory. The default database
-
+URL creates `bitehub_db` on first startup. Set your local database credentials
+and generate fresh random secrets in PowerShell:
 
 ```powershell
 $env:DB_URL = 'jdbc:mysql://localhost:3306/bitehub_db?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true'
 $env:DB_USERNAME = 'root'
+$env:DB_PASSWORD = '<your-local-MySQL-password>'
 
+$rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
+$jwtBytes = New-Object byte[] 48
+$adminBytes = New-Object byte[] 48
+$rng.GetBytes($jwtBytes)
+$rng.GetBytes($adminBytes)
+$env:JWT_SECRET = [Convert]::ToBase64String($jwtBytes)
+$env:ADMIN_SECRET = [Convert]::ToBase64String($adminBytes)
+$rng.Dispose()
 
+.\mvn.cmd spring-boot:run
+```
 
+Replace the database password with your own; if your local MySQL account has no
+password, set `$env:DB_PASSWORD = ''`. The generated JWT and admin secrets are
+kept only in the current PowerShell session. Generate fresh values locally;
+never commit secrets or use sample credentials. Open <http://localhost:8080>.
+To run the same checks used by CI, run `.\mvn.cmd --batch-mode verify`.
+
+### Render full-stack deployment
+
+The repository includes a Render Blueprint and Dockerfile for deploying the
+Spring Boot application with PostgreSQL. In Render, create a **Blueprint
+Instance** from this repository and select the `shams/github-pages` branch.
+The Blueprint provisions a web service and a PostgreSQL database, and
+generates private JWT, administrator, and demo-account secrets.
+
+The free PostgreSQL database is for demos and expires after 30 days; its data
+will be deleted unless the database is upgraded. The free web service can
+sleep when idle. For persistent production hosting, select paid plans before
+deploying.
+
+### GitHub Pages static preview
+
+The Pages workflow publishes a static preview from the repository's
+`src/main/resources/static` directory when changes reach `main`. To enable it,
+open **Settings → Pages** and select **GitHub Actions** as the build and
+deployment source. The preview URL is
+`https://<owner>.github.io/<repository>/`.
+
+GitHub Pages cannot run the Spring Boot API or MySQL. Sign-in, ordering,
+delivery tracking, reports, and other API-backed features therefore require
+the application to be deployed separately; the static preview displays a
+notice about this limitation.

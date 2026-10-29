@@ -18,6 +18,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -36,6 +37,9 @@ public class SecurityConfig {
      */
     @Value("${CORS_ALLOWED_ORIGINS:http://localhost:8080,http://127.0.0.1:8080,http://10.16.23.10:8080,http://www.bitehub.in:8080,https://*.trycloudflare.com}")
     private String allowedOrigins;
+
+    @Value("${RENDER_EXTERNAL_URL:}")
+    private String renderExternalUrl;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -83,11 +87,14 @@ public class SecurityConfig {
                 ).permitAll()
                 // Auth endpoints
                 .requestMatchers("/api/auth/**").permitAll()
+                // Health probe for watchdog / uptime monitors
+                .requestMatchers("/api/health").permitAll()
                 // Public GET endpoints
                 .requestMatchers(HttpMethod.GET, "/api/restaurants/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/menu-items/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/reviews/restaurant/**").permitAll()
-                .requestMatchers("/api/coupons/validate").permitAll()
+                // Coupon validation requires a login: anonymous probing of codes and discounts is enumeration, not browsing.
+                .requestMatchers("/api/coupons/validate").hasAnyAuthority("ROLE_CUSTOMER", "ROLE_ADMIN")
                 .requestMatchers(HttpMethod.GET, "/api/deliveries/orders/*/location").authenticated()
                 // Role-based endpoints
                 .requestMatchers("/api/admin/**").hasAuthority("ROLE_ADMIN")
@@ -105,7 +112,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Arrays.asList(allowedOrigins.split("\\s*,\\s*")));
+        List<String> originPatterns = new ArrayList<>(Arrays.asList(allowedOrigins.split("\\s*,\\s*")));
+        if (!renderExternalUrl.isBlank()) {
+            originPatterns.add(renderExternalUrl);
+        }
+        configuration.setAllowedOriginPatterns(originPatterns);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept"));
         configuration.setAllowCredentials(false);

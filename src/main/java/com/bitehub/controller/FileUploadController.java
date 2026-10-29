@@ -82,7 +82,7 @@ public class FileUploadController {
 
         } catch (IOException e) {
             Map<String, String> err = new HashMap<>();
-            err.put("message", "Failed to upload image: " + e.getMessage());
+            err.put("message", "Failed to upload the image. Please try again.");
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(err);
         }
     }

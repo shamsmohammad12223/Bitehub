@@ -258,6 +258,10 @@
                             ` : `
                                 <small class="text-muted">Delivery partner will be assigned once food is ready for pickup.</small>
                             `}
+                            <!-- Delivery OTP container: customer sees the 6-digit code; others see only the issued flag -->
+                            <div id="otpContainer" class="mt-2 p-2 bg-light rounded border small" style="display:none;">
+                                ${order.deliveryCodeIssued ? `<span>Delivery code issued: <strong>${order.deliveryOtp || '----'}</strong></span>` : `<span>Code shared with rider only</span>`}
+                            </div>
                         </div>
                     </div>
 

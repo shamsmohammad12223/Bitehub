@@ -2,7 +2,9 @@ package com.bitehub.util;
 
 import com.bitehub.model.*;
 import com.bitehub.repository.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,7 +14,14 @@ import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Seeds the demo accounts and sample data on first boot.
+ *
+ * <p>Gated to non-prod profiles: a real deployment (`--spring.profiles.active=prod`)
+ * must never resurrect the well-known demo credentials, including the admin account.
+ */
 @Component
+@Profile("!prod")
 public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
@@ -23,6 +32,9 @@ public class DataInitializer implements CommandLineRunner {
     private final AddressRepository addressRepository;
     private final CouponRepository couponRepository;
     private final PasswordEncoder passwordEncoder;
+
+    @Value("${BITEHUB_DEMO_SEED_PASSWORD:}")
+    private String demoSeedPassword;
 
     /**
      * Fixed, realistic demo coordinates around the campus base point. Seeded
@@ -65,7 +77,7 @@ public class DataInitializer implements CommandLineRunner {
         // Ensure System Admin
         User admin = userRepository.findByEmail("admin@bitehub.com").orElse(null);
         if (admin == null) {
-            admin = new User("System Admin", "admin@bitehub.com", passwordEncoder.encode("admin123"), "+1 555-0100", Role.ROLE_ADMIN);
+            admin = new User("System Admin", "admin@bitehub.com", encodeDemoPassword("admin123"), "+1 555-0100", Role.ROLE_ADMIN);
             admin.setProfileImageUrl("/images/bitehub-logo.jpg");
             userRepository.save(admin);
         }
@@ -77,7 +89,7 @@ public class DataInitializer implements CommandLineRunner {
             // 1. Seed Customer Sarah
             User customer = userRepository.findByEmail("customer@bitehub.com").orElse(null);
             if (customer == null) {
-                customer = new User("Sarah Jenkins", "customer@bitehub.com", passwordEncoder.encode("customer123"), "+1 555-0199", Role.ROLE_CUSTOMER);
+                customer = new User("Sarah Jenkins", "customer@bitehub.com", encodeDemoPassword("customer123"), "+1 555-0199", Role.ROLE_CUSTOMER);
                 customer.setProfileImageUrl("/images/cat_burger.jpg");
                 customer = userRepository.save(customer);
             }
@@ -96,7 +108,7 @@ public class DataInitializer implements CommandLineRunner {
             // 2. Seed Delivery Rider John Swift
             User riderUser = userRepository.findByEmail("rider@bitehub.com").orElse(null);
             if (riderUser == null) {
-                riderUser = new User("John Swift", "rider@bitehub.com", passwordEncoder.encode("rider123"), "+1 555-0211", Role.ROLE_DELIVERY);
+                riderUser = new User("John Swift", "rider@bitehub.com", encodeDemoPassword("rider123"), "+1 555-0211", Role.ROLE_DELIVERY);
                 riderUser = userRepository.save(riderUser);
             }
 
@@ -113,7 +125,7 @@ public class DataInitializer implements CommandLineRunner {
             // 3a. The Burger Hub
             User burgerOwner = userRepository.findByEmail("burger@bitehub.com").orElse(null);
             if (burgerOwner == null) {
-                burgerOwner = new User("Marcus Vance", "burger@bitehub.com", passwordEncoder.encode("burger123"), "+1 555-0144", Role.ROLE_RESTAURANT);
+                burgerOwner = new User("Marcus Vance", "burger@bitehub.com", encodeDemoPassword("burger123"), "+1 555-0144", Role.ROLE_RESTAURANT);
                 burgerOwner = userRepository.save(burgerOwner);
             }
             Restaurant rBurger = new Restaurant();
@@ -143,7 +155,7 @@ public class DataInitializer implements CommandLineRunner {
             // 3b. Napoli Artisan Pizza
             User pizzaOwner = userRepository.findByEmail("pizza@bitehub.com").orElse(null);
             if (pizzaOwner == null) {
-                pizzaOwner = new User("Giovanni Rossi", "pizza@bitehub.com", passwordEncoder.encode("pizza123"), "+1 555-0155", Role.ROLE_RESTAURANT);
+                pizzaOwner = new User("Giovanni Rossi", "pizza@bitehub.com", encodeDemoPassword("pizza123"), "+1 555-0155", Role.ROLE_RESTAURANT);
                 pizzaOwner = userRepository.save(pizzaOwner);
             }
             Restaurant rPizza = new Restaurant();
@@ -171,7 +183,7 @@ public class DataInitializer implements CommandLineRunner {
             // 3c. Royal Biryani House
             User biryaniOwner = userRepository.findByEmail("biryani@bitehub.com").orElse(null);
             if (biryaniOwner == null) {
-                biryaniOwner = new User("Tariq Ahmed", "biryani@bitehub.com", passwordEncoder.encode("biryani123"), "+1 555-0166", Role.ROLE_RESTAURANT);
+                biryaniOwner = new User("Tariq Ahmed", "biryani@bitehub.com", encodeDemoPassword("biryani123"), "+1 555-0166", Role.ROLE_RESTAURANT);
                 biryaniOwner = userRepository.save(biryaniOwner);
             }
             Restaurant rBiryani = new Restaurant();
@@ -199,7 +211,7 @@ public class DataInitializer implements CommandLineRunner {
             // 3d. Tokyo Express Sushi
             User sushiOwner = userRepository.findByEmail("sushi@bitehub.com").orElse(null);
             if (sushiOwner == null) {
-                sushiOwner = new User("Kenji Tanaka", "sushi@bitehub.com", passwordEncoder.encode("sushi123"), "+1 555-0177", Role.ROLE_RESTAURANT);
+                sushiOwner = new User("Kenji Tanaka", "sushi@bitehub.com", encodeDemoPassword("sushi123"), "+1 555-0177", Role.ROLE_RESTAURANT);
                 sushiOwner = userRepository.save(sushiOwner);
             }
             Restaurant rSushi = new Restaurant();
@@ -227,7 +239,7 @@ public class DataInitializer implements CommandLineRunner {
             // 3e. Crispy Fast Bites
             User fastOwner = userRepository.findByEmail("fastfood@bitehub.com").orElse(null);
             if (fastOwner == null) {
-                fastOwner = new User("David Miller", "fastfood@bitehub.com", passwordEncoder.encode("fastfood123"), "+1 555-0188", Role.ROLE_RESTAURANT);
+                fastOwner = new User("David Miller", "fastfood@bitehub.com", encodeDemoPassword("fastfood123"), "+1 555-0188", Role.ROLE_RESTAURANT);
                 fastOwner = userRepository.save(fastOwner);
             }
             Restaurant rFast = new Restaurant();
@@ -253,7 +265,7 @@ public class DataInitializer implements CommandLineRunner {
             // 3f. Campus Brew & Shakes
             User cafeOwner = userRepository.findByEmail("cafe@bitehub.com").orElse(null);
             if (cafeOwner == null) {
-                cafeOwner = new User("Chloe Bennett", "cafe@bitehub.com", passwordEncoder.encode("cafe123"), "+1 555-0190", Role.ROLE_RESTAURANT);
+                cafeOwner = new User("Chloe Bennett", "cafe@bitehub.com", encodeDemoPassword("cafe123"), "+1 555-0190", Role.ROLE_RESTAURANT);
                 cafeOwner = userRepository.save(cafeOwner);
             }
             Restaurant rCafe = new Restaurant();
@@ -377,6 +389,11 @@ public class DataInitializer implements CommandLineRunner {
                 orderRepository.save(order);
             }
         }
+    }
+
+    private String encodeDemoPassword(String localPassword) {
+        String password = demoSeedPassword.isBlank() ? localPassword : demoSeedPassword;
+        return passwordEncoder.encode(password);
     }
 
     private MenuItem createMenuItem(Restaurant r, String name, String category, Double price, String desc, String img, boolean veg) {
